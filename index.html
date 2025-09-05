@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookVault - Livres Numériques</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        :root {
+            --primary-blue: #1e3a8a;
+            --secondary-blue: #3b82f6;
+            --accent-orange: #f59e0b;
+            --warm-orange: #fb923c;
+            --soft-white: #f8fafc;
+        }
+
+        .bg-primary { background-color: var(--primary-blue); }
+        .bg-secondary { background-color: var(--secondary-blue); }
+        .bg-accent { background-color: var(--accent-orange); }
+        .text-primary { color: var(--primary-blue); }
+        .text-accent { color: var(--accent-orange); }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        }
+        
+        .book-cover {
+            aspect-ratio: 2/3;
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .book-cover-1 { background: linear-gradient(45deg, #667eea 0%, #764ba2 100%); }
+        .book-cover-2 { background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%); }
+        .book-cover-3 { background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%); }
+        .book-cover-4 { background: linear-gradient(45deg, #43e97b 0%, #38f9d7 100%); }
+        .book-cover-5 { background: linear-gradient(45deg, #fa709a 0%, #fee140 100%); }
+        .book-cover-6 { background: linear-gradient(45deg, #a8edea 0%, #fed6e3 100%); }
+        .book-cover-7 { background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 100%); }
+        .book-cover-8 { background: linear-gradient(45deg, #a18cd1 0%, #fbc2eb 100%); }
+        
+        .hover-transform {
+            transition: transform 0.3s ease;
+        }
+        
+        .hover-transform:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stars {
+            color: #fbbf24;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+        }
+        
+        .section-spacing {
+            margin-bottom: 4rem;
+        }
+        
+        .page-section {
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+        }
+        
+        #home.active {
+            display: block;
+        }
+        
+        .cart-count {
+            background: var(--accent-orange);
+            color: white;
+            border-radius: 50%;
+            padding: 0.2rem 0.5rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .testimonial-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+         {
+            .no-print { display: none !important; }
+            body { font-size: 12px; }
+            .section-spacing { margin-bottom: 2rem; }
+        }
+        
+        /* Responsive adjustments for PDF export */
+        @media (max-width: 768px) {
+            .book-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="text-2xl font-bold text-primary mr-8">
+                        <i class="fas fa-book-open text-accent mr-2"></i>BookVault
+                    </div>
+                    <nav class="hidden md:flex space-x-6">
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary transition" data-page="home">Accueil</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary transition" data-page="catalogue">Catalogue</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary transition" data-page="about">À Propos</a>
+                        <a href="#" class="nav-link text-gray-700 hover:text-primary transition" data-page="contact">Contact</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-700 hover:text-primary transition no-print">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <button class="text-gray-700 hover:text-primary transition no-print">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <button id="cart-btn" class="text-gray-700 hover:text-primary transition no-print">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-count" class="cart-count" style="display: none;">0</span>
+                    </button>
+                    <button id="mobile-menu-btn" class="md:hidden text-gray-700 no-print">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="md:hidden mt-4 hidden no-print">
+                <nav class="space-y-2">
+                    <a href="#" class="nav-link block text-gray-700 hover:text-primary transition py-2" data-page="home">Accueil</a>
+                    <a href="#" class="nav-link block text-gray-700 hover:text-primary transition py-2" data-page="catalogue">Catalogue</a>
+                    <a href="#" class="nav-link block text-gray-700 hover:text-primary transition py-2" data-page="about">À Propos</a>
+                    <a href="#" class="nav-link block text-gray-700 hover:text-primary transition py-2" data-page="contact">Contact</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Home Page -->
+    <div id="home" class="page-section active">
+        <!-- Hero Section -->
+        <section class="gradient-bg text-white py-20 section-spacing">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="text-5xl font-bold mb-6">Votre bibliothèque numérique infinie</h1>
+                <p class="text-xl mb-8 opacity-90">Découvrez des milliers de livres électroniques dans tous les genres</p>
+                <div class="flex justify-center mb-8">
+                    <div class="bg-white rounded-full p-1 flex items-center max-w-md w-full no-print">
+                        <input type="text" placeholder="Rechercher un livre, un auteur..." class="flex-1 px-4 py-2 rounded-l-full text-gray-700">
+                        <button class="bg-accent text-white px-6 py-2 rounded-r-full hover:bg-warm-orange transition">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="bg-accent text-white px-8 py-3 rounded-full hover:bg-warm-orange transition font-semibold no-print">
+                    Explorer le catalogue
+                </button>
+            </div>
+        </section>
+
+        <!-- Featured Books -->
+        <section class="container mx-auto px-4 section-spacing">
+            <h2 class="text-3xl font-bold text-primary mb-8 text-center">Livres en vedette</h2>
+            <div class="book-grid">
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-1 mb-4">Le Mystère Quantique</div>
+                    <h3 class="font-semibold text-gray-800">Le Mystère Quantique</h3>
+                    <p class="text-gray-600 text-sm">Dr. Sarah Chen</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">(124)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">12,99€</span>
+                        <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition text-sm no-print" 
+                                onclick="addToCart('Le Mystère Quantique', 12.99)">
+                            <i class="fas fa-cart-plus mr-1"></i> Ajouter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-2 mb-4">L'Amour au Temps Digital</div>
+                    <h3 class="font-semibold text-gray-800">L'Amour au Temps Digital</h3>
+                    <p class="text-gray-600 text-sm">Emma Rodriguez</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">(89)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">8,99€</span>
+                        <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('L\'Amour au Temps Digital', 8.99)">
+                            <i class="fas fa-cart-plus mr-1"></i> Ajouter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-3 mb-4">Voyage Interstellaire</div>
+                    <h3 class="font-semibold text-gray-800">Voyage Interstellaire</h3>
+                    <p class="text-gray-600 text-sm">Marcus Johnson</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">(156)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">15,99€</span>
+                        <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Voyage Interstellaire', 15.99)">
+                            <i class="fas fa-cart-plus mr-1"></i> Ajouter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-4 mb-4">Développement Personnel 3.0</div>
+                    <h3 class="font-semibold text-gray-800">Développement Personnel 3.0</h3>
+                    <p class="text-gray-600 text-sm">Laura Kim</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">(203)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">11,99€</span>
+                        <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Développement Personnel 3.0', 11.99)">
+                            <i class="fas fa-cart-plus mr-1"></i> Ajouter
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Genres -->
+        <section class="bg-white py-16 section-spacing">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-primary mb-8 text-center">Genres populaires</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                    <div class="text-center p-4 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                        <div class="text-4xl text-accent mb-2"><i class="fas fa-heart"></i></div>
+                        <p class="font-semibold">Romance</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                        <div class="text-4xl text-accent mb-2"><i class="fas fa-rocket"></i></div>
+                        <p class="font-semibold">Science-Fiction</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                        <div class="text-4xl text-accent mb-2"><i class="fas fa-magic"></i></div>
+                        <p class="font-semibold">Fantasy</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                        <div class="text-4xl text-accent mb-2"><i class="fas fa-search"></i></div>
+                        <p class="font-semibold">Thriller</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                        <div class="text-4xl text-accent mb-2"><i class="fas fa-graduation-cap"></i></div>
+                        <p class="font-semibold">Éducation</p>
+                    </div>
+                    <div class="text-center p-4 rounded-lg hover:bg-gray-50 transition cursor-pointer">
+                        <div class="text-4xl text-accent mb-2"><i class="fas fa-user"></i></div>
+                        <p class="font-semibold">Biographie</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials -->
+        <section class="container mx-auto px-4 section-spacing">
+            <h2 class="text-3xl font-bold text-primary mb-8 text-center">Ce que disent nos lecteurs</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="testimonial-card">
+                    <div class="flex items-center mb-4">
+                        <div class="stars mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"BookVault a révolutionné ma façon de lire. La qualité des livres et la simplicité de téléchargement sont exceptionnelles !"</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full mr-3"></div>
+                        <div>
+                            <p class="font-semibold">Marie Dubois</p>
+                            <p class="text-sm text-gray-500">Lectrice passionnée</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="flex items-center mb-4">
+                        <div class="stars mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"Un catalogue impressionnant avec des prix très compétitifs. Je recommande vivement cette plateforme !"</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full mr-3"></div>
+                        <div>
+                            <p class="font-semibold">Thomas Martin</p>
+                            <p class="text-sm text-gray-500">Étudiant</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="flex items-center mb-4">
+                        <div class="stars mr-2">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">"Interface intuitive et service client réactif. Ma bibliothèque numérique grandit chaque jour !"</p>
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-gradient-to-r from-pink-400 to-red-500 rounded-full mr-3"></div>
+                        <div>
+                            <p class="font-semibold">Sophie Bernard</p>
+                            <p class="text-sm text-gray-500">Enseignante</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section class="gradient-bg text-white py-16 section-spacing">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold mb-4">Restez informé des nouveautés</h2>
+                <p class="text-xl mb-8 opacity-90">Recevez nos recommandations et offres exclusives</p>
+                <div class="flex justify-center no-print">
+                    <div class="bg-white rounded-full p-1 flex items-center max-w-md w-full">
+                        <input type="email" placeholder="Votre adresse email" class="flex-1 px-4 py-2 rounded-l-full text-gray-700">
+                        <button class="bg-accent text-white px-6 py-2 rounded-r-full hover:bg-warm-orange transition">
+                            S'abonner
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Catalogue Page -->
+    <div id="catalogue" class="page-section">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-4xl font-bold text-primary mb-8">Notre Catalogue</h1>
+            
+            <!-- Filters -->
+            <div class="bg-white p-6 rounded-lg shadow-lg mb-8 no-print">
+                <div class="grid md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Genre</label>
+                        <select class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option>Tous les genres</option>
+                            <option>Romance</option>
+                            <option>Science-Fiction</option>
+                            <option>Fantasy</option>
+                            <option>Thriller</option>
+                            <option>Biographie</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prix</label>
+                        <select class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option>Tous les prix</option>
+                            <option>Moins de 10€</option>
+                            <option>10€ - 20€</option>
+                            <option>Plus de 20€</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Auteur</label>
+                        <input type="text" placeholder="Rechercher un auteur" class="w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trier par</label>
+                        <select class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option>Popularité</option>
+                            <option>Prix croissant</option>
+                            <option>Prix décroissant</option>
+                            <option>Nouveautés</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Book Grid -->
+            <div class="book-grid">
+                <!-- Book 1 -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-1 mb-4">Le Mystère Quantique</div>
+                    <h3 class="font-semibold text-gray-800">Le Mystère Quantique</h3>
+                    <p class="text-gray-600 text-sm">Dr. Sarah Chen</p>
+                    <p class="text-xs text-gray-500 mt-1">Science-Fiction • 2024</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★★</div>
+                        <span class="ml-2 text-sm text-gray-600">(124)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">12,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Le Mystère Quantique', 12.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <!-- Book 2 -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-2 mb-4">L'Amour au Temps Digital</div>
+                    <h3 class="font-semibold text-gray-800">L'Amour au Temps Digital</h3>
+                    <p class="text-gray-600 text-sm">Emma Rodriguez</p>
+                    <p class="text-xs text-gray-500 mt-1">Romance • 2024</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★☆</div>
+                        <span class="ml-2 text-sm text-gray-600">(89)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">8,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('L\'Amour au Temps Digital', 8.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <!-- Book 3 -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-3 mb-4">Voyage Interstellaire</div>
+                    <h3 class="font-semibold text-gray-800">Voyage Interstellaire</h3>
+                    <p class="text-gray-600 text-sm">Marcus Johnson</p>
+                    <p class="text-xs text-gray-500 mt-1">Science-Fiction • 2023</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★★</div>
+                        <span class="ml-2 text-sm text-gray-600">(156)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">15,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Voyage Interstellaire', 15.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <!-- Book 4 -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-4 mb-4">Développement Personnel 3.0</div>
+                    <h3 class="font-semibold text-gray-800">Développement Personnel 3.0</h3>
+                    <p class="text-gray-600 text-sm">Laura Kim</p>
+                    <p class="text-xs text-gray-500 mt-1">Développement • 2024</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★☆</div>
+                        <span class="ml-2 text-sm text-gray-600">(203)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">11,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Développement Personnel 3.0', 11.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <!-- Book 5 -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-5 mb-4">Les Secrets de l'Intelligence</div>
+                    <h3 class="font-semibold text-gray-800">Les Secrets de l'Intelligence</h3>
+                    <p class="text-gray-600 text-sm">Prof. David Smith</p>
+                    <p class="text-xs text-gray-500 mt-1">Psychologie • 2023</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★★</div>
+                        <span class="ml-2 text-sm text-gray-600">(178)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">14,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Les Secrets de l\'Intelligence', 14.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <!-- Book 6 -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-6 mb-4">Chroniques du Futur</div>
+                    <h3 class="font-semibold text-gray-800">Chroniques du Futur</h3>
+                    <p class="text-gray-600 text-sm">Alex Nova</p>
+                    <p class="text-xs text-gray-500 mt-1">Fantasy • 2024</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★☆</div>
+                        <span class="ml-2 text-sm text-gray-600">(95)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">13,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Chroniques du Futur', 13.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <!-- Additional books for variety -->
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-7 mb-4">Mémoires d'une Artiste</div>
+                    <h3 class="font-semibold text-gray-800">Mémoires d'une Artiste</h3>
+                    <p class="text-gray-600 text-sm">Isabella Moreau</p>
+                    <p class="text-xs text-gray-500 mt-1">Biographie • 2023</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★★</div>
+                        <span class="ml-2 text-sm text-gray-600">(210)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">16,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Mémoires d\'une Artiste', 16.99)">Ajouter</button>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                    <div class="book-cover book-cover-8 mb-4">Le Thriller de Minuit</div>
+                    <h3 class="font-semibold text-gray-800">Le Thriller de Minuit</h3>
+                    <p class="text-gray-600 text-sm">James Parker</p>
+                    <p class="text-xs text-gray-500 mt-1">Thriller • 2024</p>
+                    <div class="flex items-center mt-2">
+                        <div class="stars text-sm">★★★★☆</div>
+                        <span class="ml-2 text-sm text-gray-600">(142)</span>
+                    </div>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-lg font-bold text-accent">9,99€</span>
+                        <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                onclick="addToCart('Le Thriller de Minuit', 9.99)">Ajouter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Page -->
+    <div id="about" class="page-section">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-4xl font-bold text-primary mb-8">À Propos de BookVault</h1>
+            
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary mb-4">Notre Mission</h2>
+                    <p class="text-gray-600 mb-6">
+                        BookVault est née de la passion pour la lecture et de l'innovation technologique. Nous croyons que l'accès aux livres numériques 
+                        doit être simple, abordable et universel.
+                    </p>
+                    <p class="text-gray-600 mb-6">
+                        Notre plateforme révolutionne la façon dont vous découvrez, achetez et lisez des livres électroniques. 
+                        Avec plus de 10 000 titres disponibles, nous offrons une bibliothèque numérique infinie pour tous les goûts.
+                    </p>
+                </div>
+                <div class="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-8 text-white">
+                    <h3 class="text-xl font-bold mb-4">Nos Chiffres</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between">
+                            <span>Livres disponibles</span>
+                            <span class="font-bold">10,000+</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Lecteurs satisfaits</span>
+                            <span class="font-bold">50,000+</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Téléchargements</span>
+                            <span class="font-bold">250,000+</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Note moyenne</span>
+                            <span class="font-bold">4.8/5</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="text-center">
+                    <div class="text-5xl text-accent mb-4"><i class="fas fa-download"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Téléchargement Instantané</h3>
+                    <p class="text-gray-600">Accédez immédiatement à vos livres après achat, sur tous vos appareils.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl text-accent mb-4"><i class="fas fa-shield-alt"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Sécurité Garantie</h3>
+                    <p class="text-gray-600">Paiements sécurisés et protection de vos données personnelles.</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-5xl text-accent mb-4"><i class="fas fa-headset"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Support 24/7</h3>
+                    <p class="text-gray-600">Une équipe dédiée pour vous accompagner dans votre expérience de lecture.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h2 class="text-2xl font-bold text-primary mb-6">FAQ - Questions Fréquentes</h2>
+                
+                <div class="space-y-6">
+                    <div class="border-b pb-4">
+                        <h3 class="font-semibold text-lg mb-2">Comment télécharger mes livres ?</h3>
+                        <p class="text-gray-600">Après votre achat, vous recevez immédiatement un lien de téléchargement par email. Vous pouvez aussi accéder à vos livres depuis votre compte personnel.</p>
+                    </div>
+                    
+                    <div class="border-b pb-4">
+                        <h3 class="font-semibold text-lg mb-2">Quels formats sont disponibles ?</h3>
+                        <p class="text-gray-600">Nous proposons principalement les formats EPUB et PDF, compatibles avec la plupart des liseuses et appareils.</p>
+                    </div>
+                    
+                    <div class="border-b pb-4">
+                        <h3 class="font-semibold text-lg mb-2">Puis-je lire sur plusieurs appareils ?</h3>
+                        <p class="text-gray-600">Oui ! Vos livres sont disponibles sur tous vos appareils : smartphone, tablette, ordinateur et liseuse.</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-lg mb-2">Comment fonctionne le remboursement ?</h3>
+                        <p class="text-gray-600">Nous offrons une garantie de satisfaction de 30 jours. Si vous n'êtes pas satisfait, contactez notre support pour un remboursement.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Page -->
+    <div id="contact" class="page-section">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-4xl font-bold text-primary mb-8">Contactez-nous</h1>
+            
+            <div class="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary mb-6">Nous sommes là pour vous aider</h2>
+                    <p class="text-gray-600 mb-8">
+                        Vous avez une question, un problème technique ou une suggestion ? 
+                        Notre équipe est à votre écoute pour vous offrir la meilleure expérience possible.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center">
+                            <div class="text-2xl text-accent mr-4"><i class="fas fa-envelope"></i></div>
+                            <div>
+                                <h3 class="font-semibold">Email</h3>
+                                <p class="text-gray-600">support@bookvault.fr</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="text-2xl text-accent mr-4"><i class="fas fa-phone"></i></div>
+                            <div>
+                                <h3 class="font-semibold">Téléphone</h3>
+                                <p class="text-gray-600">+33 1 23 45 67 89</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="text-2xl text-accent mr-4"><i class="fas fa-clock"></i></div>
+                            <div>
+                                <h3 class="font-semibold">Horaires</h3>
+                                <p class="text-gray-600">Lun-Ven: 9h-18h<br>Sam: 10h-16h</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-bold mb-6">Envoyez-nous un message</h3>
+                    <form class="space-y-4 no-print">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
+                            <input type="text" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Sujet</label>
+                            <select class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option>Support technique</option>
+                                <option>Question commerciale</option>
+                                <option>Suggestion</option>
+                                <option>Autre</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                            <textarea rows="5" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Décrivez votre demande..."></textarea>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-primary text-white py-3 px-6 rounded-lg hover:bg-secondary transition font-semibold">
+                            <i class="fas fa-paper-plane mr-2"></i>Envoyer le message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cart-modal" class="modal no-print">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-primary">Votre Panier</h2>
+                <button id="close-cart" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="cart-items" class="space-y-4 mb-6">
+                <!-- Cart items will be populated here -->
+            </div>
+            
+            <div class="border-t pt-4">
+                <div class="flex justify-between items-center text-xl font-bold mb-4">
+                    <span>Total:</span>
+                    <span id="cart-total" class="text-accent">0,00€</span>
+                </div>
+                <button class="w-full bg-accent text-white py-3 px-6 rounded-lg hover:bg-warm-orange transition font-semibold">
+                    <i class="fas fa-credit-card mr-2"></i>Procéder au paiement
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-12 section-spacing">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <div class="text-2xl font-bold mb-4">
+                        <i class="fas fa-book-open text-accent mr-2"></i>BookVault
+                    </div>
+                    <p class="text-blue-100">Votre bibliothèque numérique infinie pour découvrir et collectionner les meilleurs livres électroniques.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Navigation</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">Accueil</a></li>
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">Catalogue</a></li>
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">À Propos</a></li>
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">Contact</a></li>
+                    </ul>
+                        <li><!-- Admin link --><a href="/admin/" class="text-blue-100 hover:text-white transition no-print">Admin</a></li>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Support</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">FAQ</a></li>
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">Aide</a></li>
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">Conditions</a></li>
+                        <li><a href="#" class="text-blue-100 hover:text-white transition">Confidentialité</a></li>
+                    </ul>
+                        <li><!-- Admin link --><a href="/admin/" class="text-blue-100 hover:text-white transition no-print">Admin</a></li>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Suivez-nous</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-blue-100 hover:text-white transition">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-100 hover:text-white transition">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-100 hover:text-white transition">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-blue-100 hover:text-white transition">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-blue-600 mt-8 pt-8 text-center">
+                <p class="text-blue-100">&copy; 2024 BookVault. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pageElements = document.querySelectorAll('.page-section');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetPage = this.getAttribute('data-page');
+                    
+                    // Hide all pages
+                    pageElements.forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    // Show target page
+                    const targetElement = document.getElementById(targetPage);
+                    if (targetElement) {
+                        targetElement.classList.add('active');
+                    }
+                    
+                    // Close mobile menu
+                    document.getElementById('mobile-menu').classList.add('hidden');
+                });
+            });
+            
+            // Mobile menu toggle
+            document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+
+        // Shopping Cart
+        let cart = [];
+        
+        function addToCart(bookTitle, price) {
+            const existingItem = cart.find(item => item.title === bookTitle);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    title: bookTitle,
+                    price: price,
+                    quantity: 1
+                });
+            }
+            
+            updateCartUI();
+            
+            // Show success message
+            alert(`"${bookTitle}" ajouté au panier !`);
+        }
+        
+        function removeFromCart(bookTitle) {
+            cart = cart.filter(item => item.title !== bookTitle);
+            updateCartUI();
+        }
+        
+        function updateCartQuantity(bookTitle, newQuantity) {
+            const item = cart.find(item => item.title === bookTitle);
+            if (item) {
+                if (newQuantity <= 0) {
+                    removeFromCart(bookTitle);
+                } else {
+                    item.quantity = newQuantity;
+                }
+            }
+            updateCartUI();
+        }
+        
+        function updateCartUI() {
+            const cartCount = document.getElementById('cart-count');
+            const cartItems = document.getElementById('cart-items');
+            const cartTotal = document.getElementById('cart-total');
+            
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // Update cart count
+            if (totalItems > 0) {
+                cartCount.textContent = totalItems;
+                cartCount.style.display = 'inline';
+            } else {
+                cartCount.style.display = 'none';
+            }
+            
+            // Update cart items
+            cartItems.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = '<p class="text-gray-500 text-center py-4">Votre panier est vide</p>';
+            } else {
+                cart.forEach(item => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex justify-between items-center bg-gray-50 p-3 rounded';
+                    itemElement.innerHTML = `
+                        <div>
+                            <h4 class="font-semibold">${item.title}</h4>
+                            <p class="text-sm text-gray-600">${item.price.toFixed(2)}€ × ${item.quantity}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="updateCartQuantity('${item.title}', ${item.quantity - 1})" 
+                                    class="bg-gray-200 text-gray-700 w-8 h-8 rounded hover:bg-gray-300 transition">-</button>
+                            <span class="w-8 text-center">${item.quantity}</span>
+                            <button onclick="updateCartQuantity('${item.title}', ${item.quantity + 1})" 
+                                    class="bg-gray-200 text-gray-700 w-8 h-8 rounded hover:bg-gray-300 transition">+</button>
+                            <button onclick="removeFromCart('${item.title}')" 
+                                    class="text-red-500 hover:text-red-700 ml-2"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    cartItems.appendChild(itemElement);
+                });
+            }
+            
+            // Update total
+            cartTotal.textContent = totalPrice.toFixed(2) + '€';
+        }
+        
+        // Cart modal
+        document.getElementById('cart-btn').addEventListener('click', function() {
+            document.getElementById('cart-modal').style.display = 'block';
+        });
+        
+        document.getElementById('close-cart').addEventListener('click', function() {
+            document.getElementById('cart-modal').style.display = 'none';
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('cart-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        // Initialize cart UI
+        updateCartUI();
+    </script>
+
+    <script>
+    // --- BookVault dynamic data loader (Netlify CMS) ---
+    async function loadBooks() {
+        try {
+            const res = await fetch('/data/books.json', { cache: 'no-store' });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            const data = await res.json();
+            if (!data || !Array.isArray(data.books)) return;
+
+            // Helper to star rating
+            const stars = (n) => '★★★★★'.slice(0, Math.floor(n)).padEnd(5, '☆');
+
+            // Featured grid: first 4 books
+            const featuredGrid = document.querySelector('#home .book-grid');
+            if (featuredGrid) {
+                featuredGrid.innerHTML = '';
+                data.books.slice(0, 4).forEach((b, i) => {
+                    const coverClass = b.coverClass || ('book-cover-' + ((i % 8) + 1));
+                    featuredGrid.insertAdjacentHTML('beforeend', `
+                        <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                            <div class="book-cover ${coverClass} mb-4">${b.coverText || b.title}</div>
+                            <h3 class="font-semibold text-gray-800">${b.title}</h3>
+                            <p class="text-gray-600 text-sm">${b.author || ''}</p>
+                            <div class="flex items-center mt-2">
+                                <div class="stars text-sm">${stars(b.rating || 5)}</div>
+                                <span class="ml-2 text-sm text-gray-600">(${b.reviews || 100})</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <span class="text-lg font-bold text-accent">${(b.price || 0).toFixed(2)}€</span>
+                                <button class="bg-primary text-white px-4 py-2 rounded hover:bg-secondary transition text-sm no-print"
+                                        onclick="addToCart('${b.title.replace("'","\'")}', ${(b.price || 0)})">
+                                    <i class="fas fa-cart-plus mr-1"></i> Ajouter
+                                </button>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+
+            // Catalogue grid: all books
+            const catalogueGrid = document.querySelector('#catalogue .book-grid');
+            if (catalogueGrid) {
+                catalogueGrid.innerHTML = '';
+                data.books.forEach((b, i) => {
+                    const coverClass = b.coverClass || ('book-cover-' + ((i % 8) + 1));
+                    catalogueGrid.insertAdjacentHTML('beforeend', `
+                        <div class="bg-white rounded-lg shadow-lg p-4 hover-transform">
+                            <div class="book-cover ${coverClass} mb-4">${b.coverText || b.title}</div>
+                            <h3 class="font-semibold text-gray-800">${b.title}</h3>
+                            <p class="text-gray-600 text-sm">${b.author || ''}</p>
+                            <p class="text-xs text-gray-500 mt-1">${b.genre || ''} ${b.year ? '• ' + b.year : ''}</p>
+                            <div class="flex items-center mt-2">
+                                <div class="stars text-sm">${stars(b.rating || 5)}</div>
+                                <span class="ml-2 text-sm text-gray-600">(${b.reviews || 0})</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-3">
+                                <span class="text-lg font-bold text-accent">${(b.price || 0).toFixed(2)}€</span>
+                                <button class="bg-primary text-white px-3 py-1 rounded hover:bg-secondary transition text-sm no-print"
+                                        onclick="addToCart('${b.title.replace("'","\'")}', ${(b.price || 0)})">Ajouter</button>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+        } catch (e) {
+            console.warn('Book data load skipped (CMS not configured yet):', e);
+        }
+    }
+    document.addEventListener('DOMContentLoaded', loadBooks);
+    </script>
+
+</body>
+</html>
+    <script id="html_badge_script1">
+        window.__genspark_remove_badge_link = "https://www.genspark.ai/api/html_badge/" +
+            "remove_badge?token=To%2FBnjzloZ3UfQdcSaYfDowkOzLzDFvr7aFslibVyRkuQx2vrqU72fpi7Ir5lhYoz1zd4%2BC0YmjUTpQ18RecFVRfv3Ag9bhPLzivPNSM4ju%2BK9J2SluwZ6BoK2ZkUA8sNQaNztqxxGFtMOAw0kXE2aJThpdkWOll962LauB%2FJo6SReWsbO7Y8u1BOiPB3g7W3bQrwWh2OonVNzhPeYmSH%2BxJcdECZ1qy5MkknN5DhWF%2BzK57IUgywKz61o7Gw1oY%2BwQ2%2FyTqL%2Flj4YvrtfkGn81lJfP9RfB3BrZX15unoyCbs%2FmkHe7a%2FdbeBizQxXau8CVHbHeQvwxmwGH8ureJBLbMcu43BdtCu9%2Fl0n%2F9HbfxYZNI0vlw%2BecNiqM5pMMRLm3ofSxsRxQt%2BbSdDFqmEAwkoamjYWn3VRZca1n6yuT0TeMdp9RumYdbbl7Slq%2B4VDojV1rL3rQ5fOwsioAy2NAMMZY1u5q2KB8gIRW5712UbQrmxiXvjml1SMCPRjZf%2FCmIepYJnX%2FbRn%2FGYFAu%2FLkzCGxRbViMwmfY8U9yr2g%3D";
+        window.__genspark_locale = "fr-FR";
+        window.__genspark_token = "To/BnjzloZ3UfQdcSaYfDowkOzLzDFvr7aFslibVyRkuQx2vrqU72fpi7Ir5lhYoz1zd4+C0YmjUTpQ18RecFVRfv3Ag9bhPLzivPNSM4ju+K9J2SluwZ6BoK2ZkUA8sNQaNztqxxGFtMOAw0kXE2aJThpdkWOll962LauB/Jo6SReWsbO7Y8u1BOiPB3g7W3bQrwWh2OonVNzhPeYmSH+xJcdECZ1qy5MkknN5DhWF+zK57IUgywKz61o7Gw1oY+wQ2/yTqL/lj4YvrtfkGn81lJfP9RfB3BrZX15unoyCbs/mkHe7a/dbeBizQxXau8CVHbHeQvwxmwGH8ureJBLbMcu43BdtCu9/l0n/9HbfxYZNI0vlw+ecNiqM5pMMRLm3ofSxsRxQt+bSdDFqmEAwkoamjYWn3VRZca1n6yuT0TeMdp9RumYdbbl7Slq+4VDojV1rL3rQ5fOwsioAy2NAMMZY1u5q2KB8gIRW5712UbQrmxiXvjml1SMCPRjZf/CmIepYJnX/bRn/GYFAu/LkzCGxRbViMwmfY8U9yr2g=";
+    </script>
+    
+    <script id="html_notice_dialog_script" src="https://www.genspark.ai/notice_dialog.js"></script>
+    

@@ -1,0 +1,92 @@
+{
+  "books": [
+    {
+      "title": "Le Mystère Quantique",
+      "author": "Dr. Sarah Chen",
+      "price": 12.99,
+      "rating": 5,
+      "reviews": 124,
+      "genre": "Science-Fiction",
+      "year": 2024,
+      "coverText": "Le Mystère Quantique",
+      "coverClass": "book-cover-1"
+    },
+    {
+      "title": "L'Amour au Temps Digital",
+      "author": "Emma Rodriguez",
+      "price": 8.99,
+      "rating": 4,
+      "reviews": 89,
+      "genre": "Romance",
+      "year": 2024,
+      "coverText": "L'Amour au Temps Digital",
+      "coverClass": "book-cover-2"
+    },
+    {
+      "title": "Voyage Interstellaire",
+      "author": "Marcus Johnson",
+      "price": 15.99,
+      "rating": 5,
+      "reviews": 156,
+      "genre": "Science-Fiction",
+      "year": 2023,
+      "coverText": "Voyage Interstellaire",
+      "coverClass": "book-cover-3"
+    },
+    {
+      "title": "Développement Personnel 3.0",
+      "author": "Laura Kim",
+      "price": 11.99,
+      "rating": 4,
+      "reviews": 203,
+      "genre": "Développement",
+      "year": 2024,
+      "coverText": "Développement Personnel 3.0",
+      "coverClass": "book-cover-4"
+    },
+    {
+      "title": "Les Secrets de l'Intelligence",
+      "author": "Prof. David Smith",
+      "price": 14.99,
+      "rating": 5,
+      "reviews": 178,
+      "genre": "Psychologie",
+      "year": 2023,
+      "coverText": "Les Secrets de l'Intelligence",
+      "coverClass": "book-cover-5"
+    },
+    {
+      "title": "Chroniques du Futur",
+      "author": "Alex Nova",
+      "price": 13.99,
+      "rating": 4,
+      "reviews": 95,
+      "genre": "Fantasy",
+      "year": 2024,
+      "coverText": "Chroniques du Futur",
+      "coverClass": "book-cover-6"
+    },
+    {
+      "title": "Mémoires d'une Artiste",
+      "author": "Isabella Moreau",
+      "price": 16.99,
+      "rating": 5,
+      "reviews": 210,
+      "genre": "Biographie",
+      "year": 2023,
+      "coverText": "Mémoires d'une Artiste",
+      "coverClass": "book-cover-7"
+    },
+    {
+      "title": "Le Thriller de Minuit",
+      "author": "James Parker",
+      "price": 9.99,
+      "rating": 4,
+      "reviews": 142,
+      "genre": "Thriller",
+      "year": 2024,
+      "coverText": "Le Thriller de Minuit",
+      "coverClass": "book-cover-8"
+    }
+  ]
+}
