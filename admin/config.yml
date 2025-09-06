@@ -13,17 +13,12 @@ collections:
         name: "books"
         file: "data/books.json"
         fields:
-          - label: "Livres"
-            name: "books"
-            widget: "list"
-            summary: "{{fields.title}} – {{fields.price}}€"
-            fields:
-              - { label: "Titre", name: "title", widget: "string" }
-              - { label: "Auteur", name: "author", widget: "string", required: false }
-              - { label: "Prix (€)", name: "price", widget: "number", valueType: "float", min: 0 }
-              - { label: "Note (0–5)", name: "rating", widget: "number", valueType: "int", min: 0, max: 5, default: 5 }
-              - { label: "Avis (nombre)", name: "reviews", widget: "number", valueType: "int", default: 0 }
-              - { label: "Genre", name: "genre", widget: "string", required: false }
-              - { label: "Année", name: "year", widget: "number", valueType: "int", required: false }
-              - { label: "Texte sur la couverture", name: "coverText", widget: "string", required: false }
-              - { label: "Style de couverture (classe CSS)", name: "coverClass", widget: "select", required: false, options: ["book-cover-1","book-cover-2","book-cover-3","book-cover-4","book-cover-5","book-cover-6","book-cover-7","book-cover-8"] }
+          - { label: "Titre", name: "title", widget: "string" }
+          - { label: "Auteur", name: "author", widget: "string", required: false }
+          - { label: "Prix (€)", name: "price", widget: "number", valueType: "float", min: 0 }
+          - { label: "Note (0–5)", name: "rating", widget: "number", valueType: "int", min: 0, max: 5, default: 5 }
+          - { label: "Avis (nombre)", name: "reviews", widget: "number", valueType: "int", default: 0 }
+          - { label: "Genre", name: "genre", widget: "string", required: false }
+          - { label: "Année", name: "year", widget: "number", valueType: "int", required: false }
+          - { label: "Texte sur la couverture", name: "coverText", widget: "string", required: false }
+          - { label: "Style de couverture (classe CSS)", name: "coverClass", widget: "select", required: false, options: ["book-cover-1","book-cover-2","book-cover-3","book-cover-4","book-cover-5","book-cover-6","book-cover-7","book-cover-8"] }
