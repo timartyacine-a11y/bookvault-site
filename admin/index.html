@@ -1,62 +1,55 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Admin – BookVault</title>
-    <!-- Netlify Identity -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <!-- CMS (avec fallback unpkg si jsDelivr échoue) -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/netlify-cms@^2.0.0/dist/netlify-cms.js"
-      onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js';document.head.appendChild(s);})();">
-    </script>
-  </head>
-  <body>
-    <script>
-      // On ne lit plus /admin/config.yml : on injecte la config ici.
-      window.CMS_MANUAL_INIT = true;
-      function boot() {
-        if (!window.CMS) return setTimeout(boot, 200);
-        CMS.init({
-          config: {
-            backend: { name: "git-gateway", branch: "main" },
-            media_folder: "images/uploads",
-            public_folder: "/images/uploads",
-            collections: [
-              {
-                name: "catalogue",
-                label: "Catalogue (Livres)",
-                files: [
-                  {
-                    label: "Livres",
-                    name: "books",
-                    file: "data/books.json",
-                    fields: [
-                      { label: "Livres", name: "books", widget: "list",
-                        summary: "{{fields.title}} – {{fields.price}}€",
-                        fields: [
-                          { label: "Titre", name: "title", widget: "string" },
-                          { label: "Auteur", name: "author", widget: "string", required: false },
-                          { label: "Prix (€)", name: "price", widget: "number", valueType: "float", min: 0 },
-                          { label: "Note (0–5)", name: "rating", widget: "number", valueType: "int", min: 0, max: 5, default: 5 },
-                          { label: "Avis (nombre)", name: "reviews", widget: "number", valueType: "int", default: 0 },
-                          { label: "Genre", name: "genre", widget: "string", required: false },
-                          { label: "Année", name: "year", widget: "number", valueType: "int", required: false },
-                          { label: "Texte sur la couverture", name: "coverText", widget: "string", required: false },
-                          { label: "Style de couverture (classe CSS)", name: "coverClass", widget: "select", required: false,
-                            options: ["book-cover-1","book-cover-2","book-cover-3","book-cover-4","book-cover-5","book-cover-6","book-cover-7","book-cover-8"] }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
-        });
-      }
-      boot();
-    </script>
-  </body>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BookVault – Accueil</title>
+  <style>
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#0f172a;color:#fff}
+    header{padding:32px;text-align:center;background:linear-gradient(135deg,#0ea5e9,#6366f1)}
+    main{max-width:900px;margin:32px auto;padding:0 16px}
+    .card{background:#0b1220;border:1px solid #1f2937;border-radius:16px;padding:16px;margin:16px 0}
+    a.btn{display:inline-block;background:#f59e0b;color:#111;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .muted{color:#94a3b8}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BookVault</h1>
+    <p class="muted">Votre bibliothèque numérique</p>
+    <p style="margin-top:12px"><a class="btn" href="/admin/">Accéder au panneau d’administration</a></p>
+  </header>
+
+  <main>
+    <h2>Livres du catalogue</h2>
+    <div id="books" class="grid"></div>
+
+    <div class="card muted">
+      Si cette liste est vide, ajoutez/éditez vos livres dans le panneau <b>Admin</b>.
+    </div>
+  </main>
+
+  <script>
+    // Tente de charger /data/books.json et d'afficher la liste
+    (async () => {
+      try {
+        const res = await fetch('/data/books.json', {cache: 'no-store'});
+        if (!res.ok) return;
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : (Array.isArray(data?.books) ? data.books : []);
+        const root = document.getElementById('books');
+        if (!items.length) return;
+
+        root.innerHTML = items.map(b => `
+          <div class="card">
+            <h3 style="margin:0 0 6px">${b.title ?? 'Sans titre'}</h3>
+            <div class="muted" style="margin-bottom:8px">${b.author ?? ''}</div>
+            <div><b>${(b.price!=null)?`${b.price} €`:'—'}</b></div>
+          </div>
+        `).join('');
+      } catch(e){ /* silencieux pour ne pas casser l'affichage */ }
+    })();
+  </script>
+</body>
 </html>
