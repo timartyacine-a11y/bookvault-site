@@ -6,53 +6,57 @@
     <title>Admin – BookVault</title>
     <!-- Netlify Identity -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-
-    <!-- Charge le CMS depuis jsDelivr puis fallback unpkg si besoin -->
+    <!-- CMS (avec fallback unpkg si jsDelivr échoue) -->
     <script
       src="https://cdn.jsdelivr.net/npm/netlify-cms@^2.0.0/dist/netlify-cms.js"
       onerror="(function(){var s=document.createElement('script');s.src='https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js';document.head.appendChild(s);})();">
     </script>
-
-    <style>
-      body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-      .msg{max-width:760px;margin:15vh auto 0;padding:16px;border:1px solid #e5e7eb;border-radius:12px;background:#fff}
-      .muted{color:#6b7280}
-    </style>
   </head>
   <body>
-    <div id="fallback" class="msg" style="display:none">
-      <h2>Impossible de charger Netlify CMS</h2>
-      <p class="muted">Vérifie que <code>/admin/config.yml</code> est accessible et réessaie en navigation privée.</p>
-    </div>
-
     <script>
-      // On désactive l'auto-init et on lance CMS.init() nous-même
+      // On ne lit plus /admin/config.yml : on injecte la config ici.
       window.CMS_MANUAL_INIT = true;
-
-      function initCMS() {
-        if (window.CMS) {
-          try {
-            CMS.init({
-              config: {
-                load_config_file: true,
-                path: "/admin/config.yml"
+      function boot() {
+        if (!window.CMS) return setTimeout(boot, 200);
+        CMS.init({
+          config: {
+            backend: { name: "git-gateway", branch: "main" },
+            media_folder: "images/uploads",
+            public_folder: "/images/uploads",
+            collections: [
+              {
+                name: "catalogue",
+                label: "Catalogue (Livres)",
+                files: [
+                  {
+                    label: "Livres",
+                    name: "books",
+                    file: "data/books.json",
+                    fields: [
+                      { label: "Livres", name: "books", widget: "list",
+                        summary: "{{fields.title}} – {{fields.price}}€",
+                        fields: [
+                          { label: "Titre", name: "title", widget: "string" },
+                          { label: "Auteur", name: "author", widget: "string", required: false },
+                          { label: "Prix (€)", name: "price", widget: "number", valueType: "float", min: 0 },
+                          { label: "Note (0–5)", name: "rating", widget: "number", valueType: "int", min: 0, max: 5, default: 5 },
+                          { label: "Avis (nombre)", name: "reviews", widget: "number", valueType: "int", default: 0 },
+                          { label: "Genre", name: "genre", widget: "string", required: false },
+                          { label: "Année", name: "year", widget: "number", valueType: "int", required: false },
+                          { label: "Texte sur la couverture", name: "coverText", widget: "string", required: false },
+                          { label: "Style de couverture (classe CSS)", name: "coverClass", widget: "select", required: false,
+                            options: ["book-cover-1","book-cover-2","book-cover-3","book-cover-4","book-cover-5","book-cover-6","book-cover-7","book-cover-8"] }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
-            });
-          } catch (e) {
-            document.getElementById('fallback').style.display = 'block';
-            console.error('CMS.init error', e);
+            ]
           }
-        } else {
-          // Attend que le script du CMS soit chargé
-          setTimeout(initCMS, 300);
-        }
+        });
       }
-      // Sécurité : si au bout de 6s rien n'est chargé, on montre un message
-      setTimeout(function(){
-        if (!window.CMS) document.getElementById('fallback').style.display = 'block';
-      }, 6000);
-
-      initCMS();
+      boot();
     </script>
   </body>
 </html>
